@@ -5,18 +5,23 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
 )
 
 func main() {
-	// TODO: make all of these configurable
-	domain := "foo.local"
-	port := "8080"
-	addr := domain + ":" + port
-	dir := "."
-	handler := http.FileServer(http.Dir("."))
+	hostFlag := flag.String("host", "", "specific host to listen on")
+	portFlag := flag.String("port", "8080", "port to listen on")
 
-	log.Printf("Serving directory %q on http://%v", dir, addr)
+	// TODO: dir should be argv[1] too?
+	// TODO: sanitize dir for safety
+	dirFlag := flag.String("dir", ".", "root directory to serve")
+	flag.Parse()
+
+	addr := *hostFlag + ":" + *portFlag
+	handler := http.FileServer(http.Dir(*dirFlag))
+
+	log.Printf("Serving directory %q on http://%v", *dirFlag, addr)
 	log.Fatal(http.ListenAndServe(addr, handler))
 }
