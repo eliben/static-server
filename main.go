@@ -8,6 +8,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
 )
@@ -22,7 +23,7 @@ func usage() {
 func main() {
 	flag.Usage = usage
 	hostFlag := flag.String("host", "localhost", "specific host to listen on")
-	portFlag := flag.String("port", "8080", "port to listen on")
+	portFlag := flag.String("port", "8080", "port to listen on; if 0, a random available port will be used")
 	flag.Parse()
 
 	if len(flag.Args()) > 1 {
@@ -39,6 +40,11 @@ func main() {
 	addr := *hostFlag + ":" + *portFlag
 	handler := http.FileServer(http.Dir(rootDir))
 
-	log.Printf("Serving directory %q on http://%v", rootDir, addr)
-	log.Fatal(http.ListenAndServe(addr, handler))
+	// Use an explicit listener to access .Addr() when serving on port :0
+	listener, err := net.Listen("tcp", addr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Serving directory %q on http://%v", rootDir, listener.Addr())
+	log.Fatal(http.Serve(listener, handler))
 }
