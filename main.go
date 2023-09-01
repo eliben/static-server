@@ -13,15 +13,21 @@ import (
 func main() {
 	hostFlag := flag.String("host", "", "specific host to listen on")
 	portFlag := flag.String("port", "8080", "port to listen on")
-
-	// TODO: dir should be argv[1] too?
-	// TODO: sanitize dir for safety
-	dirFlag := flag.String("dir", ".", "root directory to serve")
 	flag.Parse()
 
-	addr := *hostFlag + ":" + *portFlag
-	handler := http.FileServer(http.Dir(*dirFlag))
+	if len(flag.Args()) > 1 {
+		// TODO: print usage
+		log.Fatal("Error: too many command-line arguments")
+	}
 
-	log.Printf("Serving directory %q on http://%v", *dirFlag, addr)
+	rootDir := "."
+	if len(flag.Args()) == 1 {
+		rootDir = flag.Args()[0]
+	}
+
+	addr := *hostFlag + ":" + *portFlag
+	handler := http.FileServer(http.Dir(rootDir))
+
+	log.Printf("Serving directory %q on http://%v", rootDir, addr)
 	log.Fatal(http.ListenAndServe(addr, handler))
 }
