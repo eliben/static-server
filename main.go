@@ -21,7 +21,7 @@ func usage() {
 
 func main() {
 	flag.Usage = usage
-	hostFlag := flag.String("host", "", "specific host to listen on")
+	hostFlag := flag.String("host", "localhost", "specific host to listen on")
 	portFlag := flag.String("port", "8080", "port to listen on")
 	flag.Parse()
 
