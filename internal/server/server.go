@@ -11,36 +11,40 @@ import (
 	"os"
 )
 
-// TODO: use local, not global flag, to avoid interference with the test suite!
-
 func Main() int {
-	flag.Usage = usage
-	hostFlag := flag.String("host", "localhost", "specific host to listen on")
-	portFlag := flag.String("port", "8080", "port to listen on; if 0, a random available port will be used")
-	addrFlag := flag.String("addr", "localhost:8080", "address to listen on; don't use this is 'port' or 'host' are set")
+	flags := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+	flags.Usage = func() {
+		out := flags.Output()
+		fmt.Fprintf(out, "Usage: %v [dir]\n", os.Args[0])
+		fmt.Fprint(out, "\n  [dir] is optional; if not passed, '.' is used\n\n")
+		flags.PrintDefaults()
+	}
 
-	flag.Parse()
+	hostFlag := flags.String("host", "localhost", "specific host to listen on")
+	portFlag := flags.String("port", "8080", "port to listen on; if 0, a random available port will be used")
+	addrFlag := flags.String("addr", "localhost:8080", "address to listen on; don't use this is 'port' or 'host' are set")
+	flags.Parse(os.Args[1:])
 
-	if len(flag.Args()) > 1 {
+	if len(flags.Args()) > 1 {
 		log.Println("Error: too many command-line arguments")
-		usage()
+		flags.Usage()
 		os.Exit(1)
 	}
 
 	rootDir := "."
-	if len(flag.Args()) == 1 {
-		rootDir = flag.Args()[0]
+	if len(flags.Args()) == 1 {
+		rootDir = flags.Args()[0]
 	}
 
-	setOfFlags := flagsSet()
-	if setOfFlags["addr"] && (setOfFlags["host"] || setOfFlags["port"]) {
+	allSetFlags := flagsSet(flags)
+	if allSetFlags["addr"] && (allSetFlags["host"] || allSetFlags["port"]) {
 		log.Println("Error: if -addr is set, -host and -port must remain unset")
-		usage()
+		flags.Usage()
 		os.Exit(1)
 	}
 
 	var addr string
-	if setOfFlags["addr"] {
+	if allSetFlags["addr"] {
 		addr = *addrFlag
 	} else {
 		addr = *hostFlag + ":" + *portFlag
@@ -84,18 +88,11 @@ func Main() int {
 	}
 }
 
-func usage() {
-	out := flag.CommandLine.Output()
-	fmt.Fprintf(out, "Usage: %v [dir]\n", os.Args[0])
-	fmt.Fprint(out, "\n  [dir] is optional; if not passed, '.' is used\n\n")
-	flag.PrintDefaults()
-}
-
 // flagsSet returns a set of all the flags what were actually set on the
 // command line.
-func flagsSet() map[string]bool {
+func flagsSet(flags *flag.FlagSet) map[string]bool {
 	s := make(map[string]bool)
-	flag.Visit(func(f *flag.Flag) {
+	flags.Visit(func(f *flag.Flag) {
 		s[f.Name] = true
 	})
 	return s

@@ -3,8 +3,16 @@ exec sleep 0.05
 
 exec curl $ADDR/
 stdout '<pre>'
-stdout '<a href="'
+stdout '<a href="file.txt"'
+
+exec curl $ADDR/file.txt
+stdout fooga
+stdout barba
 
 exec curl $ADDR/__internal/__shutdown
 wait
+
+-- file.txt --
+fooga
+barba
 
