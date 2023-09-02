@@ -1,0 +1,4 @@
+exec server &
+exec sleep 0.1
+exec curl 127.0.0.1:8080/__internal/__shutdown
+
