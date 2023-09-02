@@ -1,0 +1,30 @@
+# Serves the default directory when an explicit one isn't passed.
+
+exec server -addr $ADDR &
+exec sleep 0.05
+
+exec curl $ADDR/
+stdout '<pre>'
+stdout '<a href="file.txt"'
+
+exec curl $ADDR/file.txt
+stdout fooga
+stdout barba
+
+exec curl $ADDR/subdir/
+stdout '<pre>'
+stdout '<a href="somefile"'
+
+exec curl $ADDR/subdir/somefile
+stdout something
+
+shutdown
+wait
+
+-- file.txt --
+fooga
+barba
+
+-- subdir/somefile --
+something
+

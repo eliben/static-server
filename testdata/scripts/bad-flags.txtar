@@ -1,3 +1,5 @@
+# Errors in flags.
+
 ! exec server foo bar baz
 stderr 'Error: too many'
 

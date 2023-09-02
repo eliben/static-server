@@ -1,3 +1,6 @@
+# Smoke test: starts the server and checks it prints out the expected
+# message and exits cleanly after shutdown.
+
 exec server -addr $ADDR &
 exec sleep 0.05
 

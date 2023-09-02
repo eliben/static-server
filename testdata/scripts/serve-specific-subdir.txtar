@@ -1,0 +1,29 @@
+# Serves a specific sub-directory of $WORK
+
+exec server -addr $ADDR $WORK/subdir1 &
+exec sleep 0.05
+
+exec curl $ADDR
+stdout '<pre>'
+stdout '<a href="file.txt"'
+stdout '<a href="file2.txt"'
+
+exec curl $ADDR/file.txt
+stdout subfoo1
+
+exec curl $ADDR/file2.txt
+stdout subfoo2
+
+shutdown
+wait
+
+-- file.txt --
+fooga
+barba
+
+-- subdir1/file.txt --
+subfoo1
+
+-- subdir1/file2.txt --
+subfoo2
+

@@ -18,7 +18,8 @@ func TestMain(m *testing.M) {
 
 func TestScript(t *testing.T) {
 	testscript.Run(t, testscript.Params{
-		Dir: "testdata/scripts",
+		Dir:      "testdata/scripts",
+		TestWork: true,
 		Setup: func(env *testscript.Env) error {
 			// Generate a fresh address for every test script, to avoid collisions
 			// between multiple tests running in parallel.
