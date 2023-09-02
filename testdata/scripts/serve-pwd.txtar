@@ -9,7 +9,7 @@ exec curl $ADDR/file.txt
 stdout fooga
 stdout barba
 
-exec curl $ADDR/__internal/__shutdown
+shutdown
 wait
 
 -- file.txt --

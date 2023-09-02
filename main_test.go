@@ -2,6 +2,7 @@ package main_test
 
 import (
 	"net"
+	"net/http"
 	"os"
 	"testing"
 
@@ -16,12 +17,27 @@ func TestMain(m *testing.M) {
 }
 
 func TestScript(t *testing.T) {
-	addr := randomLocalAddr(t)
 	testscript.Run(t, testscript.Params{
 		Dir: "testdata/scripts",
 		Setup: func(env *testscript.Env) error {
+			// Generate a fresh address for every test script, to avoid collisions
+			// between multiple tests running in parallel.
+			addr := randomLocalAddr(t)
 			env.Setenv("ADDR", addr)
 			return nil
+		},
+		Cmds: map[string]func(ts *testscript.TestScript, neg bool, args []string){
+			"shutdown": func(ts *testscript.TestScript, neg bool, args []string) {
+				// Custom command that connects to the "please shutdown"
+				// endpoint on the server for graceful shutdown. After this command,
+				// the server will exit.
+				addr := ts.Getenv("ADDR")
+				path := "http://" + addr + "/__internal/__shutdown"
+				resp, err := http.Get(path)
+				if err == nil {
+					resp.Body.Close()
+				}
+			},
 		},
 	})
 }

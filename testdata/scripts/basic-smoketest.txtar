@@ -1,7 +1,7 @@
-exec server &
+exec server -addr $ADDR &
 exec sleep 0.05
 
-exec curl 127.0.0.1:8080/__internal/__shutdown
+shutdown
 wait
-stderr 'Serving directory "." on http://127.0.0.1:8080'
+stderr 'Serving directory "." on'
 
