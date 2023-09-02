@@ -33,7 +33,11 @@ func Main() int {
 		Addr: addr,
 	}
 
-	shutdownCh := make(chan bool)
+	// To shut the server down cleanly in tests, we register a special route
+	// where we ask it to stop. A separate goroutine performs the shutdown so
+	// that the server can properly answer the shutdown request without abruptly
+	// closing the connection.
+	shutdownCh := make(chan struct{})
 	go func() {
 		<-shutdownCh
 		srv.Shutdown(context.Background())
@@ -42,7 +46,7 @@ func Main() int {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/__internal/__shutdown", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		close(shutdownCh)
+		defer close(shutdownCh)
 	})
 	fileHandler := http.FileServer(http.Dir(rootDir))
 	mux.Handle("/", fileHandler)
@@ -57,6 +61,7 @@ func Main() int {
 	log.Printf("Serving directory %q on http://%v", rootDir, listener.Addr())
 
 	if err := srv.Serve(listener); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		log.Println("Error in Serve:", err)
 		return 1
 	} else {
 		return 0
@@ -64,7 +69,6 @@ func Main() int {
 }
 
 func usage() {
-	// TODO: add flag.Aliases?
 	out := flag.CommandLine.Output()
 	fmt.Fprintf(out, "Usage: %v [dir]\n", os.Args[0])
 	fmt.Fprint(out, "\n  [dir] is optional; if not passed, '.' is used\n\n")
