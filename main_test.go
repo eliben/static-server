@@ -1,6 +1,7 @@
 package main_test
 
 import (
+	"net"
 	"os"
 	"testing"
 
@@ -14,8 +15,24 @@ func TestMain(m *testing.M) {
 	}))
 }
 
-func TestScriptWithExtraEnvVars(t *testing.T) {
+func TestScript(t *testing.T) {
+	addr := randomLocalAddr(t)
 	testscript.Run(t, testscript.Params{
 		Dir: "testdata/scripts",
+		Setup: func(env *testscript.Env) error {
+			env.Setenv("ADDR", addr)
+			return nil
+		},
 	})
+}
+
+// randomLocalAddr finds a random free port
+func randomLocalAddr(t *testing.T) string {
+	t.Helper()
+	l, err := net.Listen("tcp", "localhost:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer l.Close()
+	return l.Addr().String()
 }

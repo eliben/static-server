@@ -1,0 +1,10 @@
+exec server -addr $ADDR &
+exec sleep 0.05
+
+exec curl $ADDR/
+stdout '<pre>'
+stdout '<a href="'
+
+exec curl $ADDR/__internal/__shutdown
+wait
+

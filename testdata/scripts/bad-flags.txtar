@@ -1,0 +1,6 @@
+! exec server foo bar baz
+stderr 'Error: too many'
+
+! exec server -addr localhost:1111 -port 2222
+stderr 'must remain unset'
+
