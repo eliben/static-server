@@ -9,10 +9,20 @@ exec curl $ADDR/file.txt
 stdout fooga
 stdout barba
 
+exec curl $ADDR/subdir/
+stdout '<pre>'
+stdout '<a href="somefile"'
+
+exec curl $ADDR/subdir/somefile
+stdout something
+
 shutdown
 wait
 
 -- file.txt --
 fooga
 barba
+
+-- subdir/somefile --
+something
 
