@@ -9,13 +9,14 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strings"
 )
 
-// TODO: add the opener feature (-o) and logging (use middleware around the
-// mux?)
+// TODO: add the opener feature (-o)
 
 func Main() int {
 	errorLog := log.New(os.Stderr, "", log.LstdFlags)
+	serveLog := log.New(os.Stdout, "", log.LstdFlags|log.Lmicroseconds)
 
 	flags := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	flags.Usage = func() {
@@ -73,7 +74,7 @@ func Main() int {
 		w.WriteHeader(http.StatusOK)
 		defer close(shutdownCh)
 	})
-	fileHandler := http.FileServer(http.Dir(rootDir))
+	fileHandler := serveLogger(serveLog, http.FileServer(http.Dir(rootDir)))
 	mux.Handle("/", fileHandler)
 	srv.Handler = mux
 
@@ -101,4 +102,14 @@ func flagsSet(flags *flag.FlagSet) map[string]bool {
 		s[f.Name] = true
 	})
 	return s
+}
+
+// serveLogger is a logging middleware for serving. It generates logs for
+// requests sent to the server.
+func serveLogger(logger *log.Logger, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		remoteHost, _, _ := strings.Cut(r.RemoteAddr, ":")
+		logger.Printf("%v %v %v\n", remoteHost, r.Method, r.URL.Path)
+		next.ServeHTTP(w, r)
+	})
 }
