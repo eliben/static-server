@@ -11,7 +11,12 @@ import (
 	"os"
 )
 
+// TODO: add the opener feature (-o) and logging (use middleware around the
+// mux?)
+
 func Main() int {
+	errorLog := log.New(os.Stderr, "", log.LstdFlags)
+
 	flags := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	flags.Usage = func() {
 		out := flags.Output()
@@ -26,7 +31,7 @@ func Main() int {
 	flags.Parse(os.Args[1:])
 
 	if len(flags.Args()) > 1 {
-		log.Println("Error: too many command-line arguments")
+		errorLog.Println("Error: too many command-line arguments")
 		flags.Usage()
 		os.Exit(1)
 	}
@@ -38,7 +43,7 @@ func Main() int {
 
 	allSetFlags := flagsSet(flags)
 	if allSetFlags["addr"] && (allSetFlags["host"] || allSetFlags["port"]) {
-		log.Println("Error: if -addr is set, -host and -port must remain unset")
+		errorLog.Println("Error: if -addr is set, -host and -port must remain unset")
 		flags.Usage()
 		os.Exit(1)
 	}
@@ -75,13 +80,13 @@ func Main() int {
 	// Use an explicit listener to access .Addr() when serving on port :0
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
-		log.Println(err)
+		errorLog.Println(err)
 		return 1
 	}
 	log.Printf("Serving directory %q on http://%v", rootDir, listener.Addr())
 
 	if err := srv.Serve(listener); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		log.Println("Error in Serve:", err)
+		errorLog.Println("Error in Serve:", err)
 		return 1
 	} else {
 		return 0
