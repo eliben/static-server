@@ -6,5 +6,5 @@ exec sleep 0.05
 
 shutdown
 wait
-stderr 'Serving directory "." on'
+stdout 'Serving directory "." on'
 

@@ -1,0 +1,19 @@
+# Checks that the server logs the paths accessed by the client
+
+exec server -addr $ADDR . &
+exec sleep 0.05
+
+exec curl $ADDR/
+exec curl $ADDR/file.txt
+
+shutdown
+wait
+
+stdout 'GET /'
+stdout 'GET /file.txt'
+
+-- file.txt --
+fooga
+barba
+
+

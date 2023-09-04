@@ -5,6 +5,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"net/http"
@@ -29,7 +30,12 @@ func Main() int {
 	hostFlag := flags.String("host", "localhost", "specific host to listen on")
 	portFlag := flags.String("port", "8080", "port to listen on; if 0, a random available port will be used")
 	addrFlag := flags.String("addr", "localhost:8080", "address to listen on; don't use this is 'port' or 'host' are set")
+	silentFlag := flags.Bool("silent", false, "suppress messages from output (reporting only errors)")
 	flags.Parse(os.Args[1:])
+
+	if *silentFlag {
+		serveLog.SetOutput(io.Discard)
+	}
 
 	if len(flags.Args()) > 1 {
 		errorLog.Println("Error: too many command-line arguments")
@@ -74,6 +80,7 @@ func Main() int {
 		w.WriteHeader(http.StatusOK)
 		defer close(shutdownCh)
 	})
+
 	fileHandler := serveLogger(serveLog, http.FileServer(http.Dir(rootDir)))
 	mux.Handle("/", fileHandler)
 	srv.Handler = mux
@@ -84,7 +91,7 @@ func Main() int {
 		errorLog.Println(err)
 		return 1
 	}
-	log.Printf("Serving directory %q on http://%v", rootDir, listener.Addr())
+	serveLog.Printf("Serving directory %q on http://%v", rootDir, listener.Addr())
 
 	if err := srv.Serve(listener); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		errorLog.Println("Error in Serve:", err)

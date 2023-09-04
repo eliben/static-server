@@ -1,0 +1,10 @@
+# Tests the -silent flag; no stdout expected.
+
+exec server -silent -addr $ADDR &
+exec sleep 0.05
+exec curl $ADDR/
+
+shutdown
+wait
+! stdout 'Serving directory "." on'
+
