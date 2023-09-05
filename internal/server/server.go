@@ -10,28 +10,40 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"runtime/debug"
 	"strings"
 )
 
 // TODO: add the opener feature (-o)
 
 func Main() int {
+	programName := os.Args[0]
 	errorLog := log.New(os.Stderr, "", log.LstdFlags)
 	serveLog := log.New(os.Stdout, "", log.LstdFlags|log.Lmicroseconds)
 
 	flags := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	flags.Usage = func() {
 		out := flags.Output()
-		fmt.Fprintf(out, "Usage: %v [dir]\n", os.Args[0])
+		fmt.Fprintf(out, "Usage: %v [dir]\n", programName)
 		fmt.Fprint(out, "\n  [dir] is optional; if not passed, '.' is used\n\n")
 		flags.PrintDefaults()
 	}
 
+	versionFlag := flags.Bool("version", false, "print version and exit")
 	hostFlag := flags.String("host", "localhost", "specific host to listen on")
 	portFlag := flags.String("port", "8080", "port to listen on; if 0, a random available port will be used")
 	addrFlag := flags.String("addr", "localhost:8080", "address to listen on; don't use this is 'port' or 'host' are set")
 	silentFlag := flags.Bool("silent", false, "suppress messages from output (reporting only errors)")
 	flags.Parse(os.Args[1:])
+
+	if *versionFlag {
+		buildInfo, ok := debug.ReadBuildInfo()
+		if !ok {
+			errorLog.Printf("version info unavailable! run 'go version -m %v'", programName)
+		}
+		fmt.Printf("%v v%v\n", programName, buildInfo.Main.Version)
+		os.Exit(0)
+	}
 
 	if *silentFlag {
 		serveLog.SetOutput(io.Discard)
