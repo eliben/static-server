@@ -13,4 +13,4 @@ If you want to install `static-server` locally first, you can run:
 $ go install github.com/eliben/static-server@latest
 ```
 
-And then invoke `static-server` as needed.
+And then invoke `static-server` as needed. The `-h` flag will show usage. That's pretty much it!
