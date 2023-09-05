@@ -38,7 +38,7 @@ func Main() int {
 
 	if *versionFlag {
 		if buildInfo, ok := debug.ReadBuildInfo(); ok {
-			fmt.Printf("%v v%v\n", programName, buildInfo.Main.Version)
+			fmt.Printf("%v %v\n", programName, buildInfo.Main.Version)
 		} else {
 			errorLog.Printf("version info unavailable! run 'go version -m %v'", programName)
 		}
