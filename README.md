@@ -4,7 +4,7 @@ Simple static file server, written in Go. There are no configuration files and n
 
 ```
 $ go run github.com/eliben/static-server@latest
-2023/09/04 17:36:06.746015 Serving directory "." on http://127.0.0.1:8080
+<timestamp> Serving directory "." on http://127.0.0.1:8080
 ```
 
 If you want to install `static-server` locally first, you can run:
