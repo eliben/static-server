@@ -34,6 +34,7 @@ func Main() int {
 	portFlag := flags.String("port", "8080", "port to listen on; if 0, a random available port will be used")
 	addrFlag := flags.String("addr", "localhost:8080", "address to listen on; don't use this is 'port' or 'host' are set")
 	silentFlag := flags.Bool("silent", false, "suppress messages from output (reporting only errors)")
+	corsFlag := flags.Bool("cors", false, "enable CORS by returning Access-Control-Allow-Origin header")
 	flags.Parse(os.Args[1:])
 
 	if *versionFlag {
@@ -94,6 +95,9 @@ func Main() int {
 	})
 
 	fileHandler := serveLogger(serveLog, http.FileServer(http.Dir(rootDir)))
+	if *corsFlag {
+		fileHandler = enableCORS(fileHandler)
+	}
 	mux.Handle("/", fileHandler)
 	srv.Handler = mux
 
@@ -129,6 +133,14 @@ func serveLogger(logger *log.Logger, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		remoteHost, _, _ := strings.Cut(r.RemoteAddr, ":")
 		logger.Printf("%v %v %v\n", remoteHost, r.Method, r.URL.Path)
+		next.ServeHTTP(w, r)
+	})
+}
+
+// enableCORS adds a CORS response header to allow cross-origin requests.
+func enableCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		next.ServeHTTP(w, r)
 	})
 }

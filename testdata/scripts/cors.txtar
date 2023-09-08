@@ -1,0 +1,27 @@
+# Checks for CORS headers with and without the -cors flag
+
+# Without -cors
+exec server -addr $ADDR . &
+exec sleep 0.05
+
+exec curl -v $ADDR/
+! stderr 'Access-Control-Allow-Origin'
+
+shutdown
+wait
+
+# With -cors
+
+exec server -cors -addr $ADDR . &
+exec sleep 0.05
+
+exec curl -v $ADDR/
+stderr 'Access-Control-Allow-Origin'
+
+shutdown
+wait
+
+-- file.txt --
+fooga
+barba
+
