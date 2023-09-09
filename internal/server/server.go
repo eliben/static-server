@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"flag"
 	"fmt"
@@ -35,6 +36,10 @@ func Main() int {
 	addrFlag := flags.String("addr", "localhost:8080", "address to listen on; don't use this is 'port' or 'host' are set")
 	silentFlag := flags.Bool("silent", false, "suppress messages from output (reporting only errors)")
 	corsFlag := flags.Bool("cors", false, "enable CORS by returning Access-Control-Allow-Origin header")
+	tlsFlag := flags.Bool("tls", false, "enable secure serving with TLS (HTTPS)")
+	certFlag := flags.String("certfile", "cert.pem", "TLS certificate file to use")
+	keyFlag := flags.String("keyfile", "key.pem", "TLS key file to use")
+
 	flags.Parse(os.Args[1:])
 
 	if *versionFlag {
@@ -76,6 +81,10 @@ func Main() int {
 	}
 	srv := &http.Server{
 		Addr: addr,
+		TLSConfig: &tls.Config{
+			MinVersion:               tls.VersionTLS13,
+			PreferServerCipherSuites: true,
+		},
 	}
 
 	// To shut the server down cleanly in tests, we register a special route
@@ -107,9 +116,19 @@ func Main() int {
 		errorLog.Println(err)
 		return 1
 	}
-	serveLog.Printf("Serving directory %q on http://%v", rootDir, listener.Addr())
+	scheme := "http://"
+	if *tlsFlag {
+		scheme = "https://"
+	}
+	serveLog.Printf("Serving directory %q on %v%v", rootDir, scheme, listener.Addr())
 
-	if err := srv.Serve(listener); err != nil && !errors.Is(err, http.ErrServerClosed) {
+	if *tlsFlag {
+		err = srv.ServeTLS(listener, *certFlag, *keyFlag)
+	} else {
+		err = srv.Serve(listener)
+	}
+
+	if err != nil && !errors.Is(err, http.ErrServerClosed) {
 		errorLog.Println("Error in Serve:", err)
 		return 1
 	} else {
