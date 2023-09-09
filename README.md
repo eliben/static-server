@@ -1,3 +1,7 @@
+[![Go](https://github.com/eliben/static-server/actions/workflows/go.yml/badge.svg)](https://github.com/eliben/static-server/actions/workflows/go.yml)
+
+----
+
 # static-server
 
 Simple static file server, written in Go. There are no configuration files and no dependencies (except one for testing). Serving the current directory on HTTP port 8080 is as simple as invoking:
