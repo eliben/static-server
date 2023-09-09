@@ -33,12 +33,12 @@ func Main() int {
 	versionFlag := flags.Bool("version", false, "print version and exit")
 	hostFlag := flags.String("host", "localhost", "specific host to listen on")
 	portFlag := flags.String("port", "8080", "port to listen on; if 0, a random available port will be used")
-	addrFlag := flags.String("addr", "localhost:8080", "address to listen on; don't use this is 'port' or 'host' are set")
+	addrFlag := flags.String("addr", "localhost:8080", "full address (host:port) to listen on; don't use this if 'port' or 'host' are set")
 	silentFlag := flags.Bool("silent", false, "suppress messages from output (reporting only errors)")
 	corsFlag := flags.Bool("cors", false, "enable CORS by returning Access-Control-Allow-Origin header")
-	tlsFlag := flags.Bool("tls", false, "enable secure serving with TLS (HTTPS)")
-	certFlag := flags.String("certfile", "cert.pem", "TLS certificate file to use")
-	keyFlag := flags.String("keyfile", "key.pem", "TLS key file to use")
+	tlsFlag := flags.Bool("tls", false, "enable HTTPS serving with TLS")
+	certFlag := flags.String("certfile", "cert.pem", "TLS certificate file to use with -tls")
+	keyFlag := flags.String("keyfile", "key.pem", "TLS key file to use with -tls")
 
 	flags.Parse(os.Args[1:])
 
