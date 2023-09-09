@@ -1,3 +1,7 @@
+// Server implementation.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package server
 
 import (
@@ -25,8 +29,13 @@ func Main() int {
 	flags := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	flags.Usage = func() {
 		out := flags.Output()
-		fmt.Fprintf(out, "Usage: %v [dir]\n", programName)
-		fmt.Fprint(out, "\n  [dir] is optional; if not passed, '.' is used\n\n")
+		fmt.Fprintf(out, "Usage: %v [dir]\n\n", programName)
+		fmt.Fprint(out, "  [dir] is optional; if not passed, '.' is used.\n\n")
+		fmt.Fprint(out, "  By default, the server listens on localhost:8080. Both the\n")
+		fmt.Fprint(out, "  host and the port are configurable with flags. Set the host\n")
+		fmt.Fprint(out, "  to something else if you want the server to listen on a\n")
+		fmt.Fprint(out, "  specific network interface. Setting the port to 0 will\n")
+		fmt.Fprint(out, "  instruct the server to a random available port.\n\n")
 		flags.PrintDefaults()
 	}
 

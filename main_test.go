@@ -1,3 +1,8 @@
+// Tests the server via its command-line interface using the
+// testscript package.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main_test
 
 import (
