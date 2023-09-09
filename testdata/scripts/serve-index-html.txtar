@@ -1,0 +1,31 @@
+# Serves index.html when that exists in a directory, instead of the listing
+
+exec server -addr $ADDR &
+exec sleep 0.05
+
+# . has an index.html, so that's served instead of a listing
+exec curl $ADDR/
+stdout 'default index contents'
+
+exec curl $ADDR/file.txt
+stdout fooga
+stdout barba
+
+# subdir/ has no index.html, so its listing is served
+exec curl $ADDR/subdir/
+stdout '<pre>'
+stdout '<a href="somefile"'
+
+shutdown
+wait
+
+-- file.txt --
+fooga
+barba
+
+-- subdir/somefile --
+something
+
+-- index.html --
+default index contents
+
