@@ -1,0 +1,25 @@
+# Serves the current working directory '.' on TLS
+# The cert/key file will be included by the test harness in the datafiles/
+# directory.
+
+exec server -addr $ADDR -tls -certfile datafiles/cert.pem -keyfile datafiles/key.pem . &
+exec sleep 0.05
+
+# curl fails to connect on HTTP
+! exec curl -f $ADDR
+
+exec curl --cacert datafiles/cert.pem https://$ADDR/
+stdout '<pre>'
+stdout '<a href="file.txt"'
+
+exec curl --cacert datafiles/cert.pem https://$ADDR/file.txt
+stdout fooga
+stdout barba
+
+shutdown_tls
+wait
+
+-- file.txt --
+fooga
+barba
+
