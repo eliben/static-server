@@ -19,8 +19,6 @@ import (
 	"strings"
 )
 
-// TODO: add the opener feature (-o)
-
 func Main() int {
 	programName := os.Args[0]
 	errorLog := log.New(os.Stderr, "", log.LstdFlags)
