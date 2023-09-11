@@ -33,7 +33,7 @@ func Main() int {
 		fmt.Fprint(out, "  host and the port are configurable with flags. Set the host\n")
 		fmt.Fprint(out, "  to something else if you want the server to listen on a\n")
 		fmt.Fprint(out, "  specific network interface. Setting the port to 0 will\n")
-		fmt.Fprint(out, "  instruct the server to a random available port.\n\n")
+		fmt.Fprint(out, "  instruct the server to pick a random available port.\n\n")
 		flags.PrintDefaults()
 	}
 

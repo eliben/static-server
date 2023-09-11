@@ -4,7 +4,7 @@
 
 # static-server
 
-Simple static file server, written in Go. There are no configuration files and no dependencies (except one for testing). Serving the current directory on HTTP port 8080 is as simple as invoking:
+Simple static file server, with support of HTTP and HTTPS. There are no configuration files and no dependencies (except one for testing). Serving the current directory on HTTP port 8080 is as simple as invoking:
 
 ```
 $ go run github.com/eliben/static-server@latest
@@ -30,7 +30,7 @@ Usage: ./static-server [dir]
   host and the port are configurable with flags. Set the host
   to something else if you want the server to listen on a
   specific network interface. Setting the port to 0 will
-  instruct the server to a random available port.
+  instruct the server to pick a random available port.
 
   -addr string
     	full address (host:port) to listen on; don't use this if 'port' or 'host' are set (default "localhost:8080")
