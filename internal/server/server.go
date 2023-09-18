@@ -104,10 +104,16 @@ func Main() int {
 		srv.Shutdown(context.Background())
 	}()
 
+	testingKey := os.Getenv("TESTING_KEY")
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/__internal/__shutdown", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		defer close(shutdownCh)
+		if testingKey != "" && r.Header.Get("Static-Server-Testing-Key") == testingKey {
+			w.WriteHeader(http.StatusOK)
+			defer close(shutdownCh)
+		} else {
+			http.Error(w, "403 Forbidden", http.StatusForbidden)
+		}
 	})
 
 	fileHandler := serveLogger(serveLog, http.FileServer(http.Dir(rootDir)))

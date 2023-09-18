@@ -8,6 +8,7 @@ package main_test
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -24,6 +25,8 @@ func TestMain(m *testing.M) {
 		"server": server.Main,
 	}))
 }
+
+const TestingKey = "test"
 
 func TestScript(t *testing.T) {
 	testscript.Run(t, testscript.Params{
@@ -42,6 +45,10 @@ func TestScript(t *testing.T) {
 			// between multiple tests running in parallel.
 			addr := randomLocalAddr(t)
 			env.Setenv("ADDR", addr)
+
+			// Create a TESTING_KEY env var for the server, to enable access to
+			// the shutdown route.
+			env.Setenv("TESTING_KEY", TestingKey)
 			return nil
 		},
 		Cmds: map[string]func(ts *testscript.TestScript, neg bool, args []string){
@@ -97,16 +104,27 @@ func check(t *testing.T, err error) {
 	}
 }
 
-func shutdownServer(addr string) {
-	path := "http://" + addr + "/__internal/__shutdown"
-	resp, err := http.Get(path)
+func makeShutdownRequest(client *http.Client, addr string, scheme string) {
+	path := scheme + "://" + addr + "/__internal/__shutdown"
+	req, err := http.NewRequest("GET", path, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.Header.Set("Static-Server-Testing-Key", TestingKey)
+
+	fmt.Println("making req:", req)
+
+	resp, err := client.Do(req)
 	if err == nil {
 		resp.Body.Close()
 	}
 }
 
+func shutdownServer(addr string) {
+	makeShutdownRequest(&http.Client{}, addr, "http")
+}
+
 func shutdownServerTLS(addr string, certpath string) {
-	path := "https://" + addr + "/__internal/__shutdown"
 	cert, err := os.ReadFile(certpath)
 	if err != nil {
 		log.Fatal(err)
@@ -124,8 +142,5 @@ func shutdownServerTLS(addr string, certpath string) {
 		},
 	}
 
-	resp, err := client.Get(path)
-	if err == nil {
-		resp.Body.Close()
-	}
+	makeShutdownRequest(client, addr, "https")
 }
