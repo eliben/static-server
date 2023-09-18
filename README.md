@@ -4,7 +4,10 @@
 
 # static-server
 
-Simple static file server, with support of HTTP and HTTPS. There are no configuration files and no dependencies (except one for testing). Serving the current directory on HTTP port 8080 is as simple as invoking:
+Simple static file server, with support of HTTP and HTTPS. Useful for local testing of web applications.
+
+
+There are no configuration files and no dependencies (except one for testing). Serving the current directory on HTTP port 8080 is as simple as invoking:
 
 ```
 $ go run github.com/eliben/static-server@latest
