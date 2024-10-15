@@ -42,7 +42,7 @@ func Main() int {
 	portFlag := flags.String("port", "8080", "port to listen on; if 0, a random available port will be used")
 	addrFlag := flags.String("addr", "localhost:8080", "full address (host:port) to listen on; don't use this if 'port' or 'host' are set")
 	silentFlag := flags.Bool("silent", false, "suppress messages from output (reporting only errors)")
-	corsFlag := flags.Bool("cors", false, "enable CORS by returning Access-Control-Allow-Origin header")
+	corsFlag := flags.Bool("cors", false, `enable CORS by setting the Access-Control-Allow-Origin header to "*" in responses`)
 	tlsFlag := flags.Bool("tls", false, "enable HTTPS serving with TLS")
 	certFlag := flags.String("certfile", "cert.pem", "TLS certificate file to use with -tls")
 	keyFlag := flags.String("keyfile", "key.pem", "TLS key file to use with -tls")
