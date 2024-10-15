@@ -1,6 +1,6 @@
 module github.com/eliben/static-server
 
-go 1.20
+go 1.23.1
 
 require github.com/rogpeppe/go-internal v1.11.0
 
