@@ -1,0 +1,29 @@
+# Checks for COOP/COEP headers with and without the -coop flag
+
+# Without -coop
+exec server -addr $ADDR . &
+exec sleep 0.05
+
+exec curl -v $ADDR/
+! stderr 'Cross-Origin'
+
+shutdown
+wait
+
+# With -coop
+
+exec server -coop -addr $ADDR . &
+exec sleep 0.05
+
+exec curl -v $ADDR/
+stderr 'Cross-Origin'
+stderr 'same-origin'
+stderr 'require-corp'
+
+shutdown
+wait
+
+-- file.txt --
+fooga
+barba
+

@@ -43,6 +43,7 @@ func Main() int {
 	addrFlag := flags.String("addr", "localhost:8080", "full address (host:port) to listen on; don't use this if 'port' or 'host' are set")
 	silentFlag := flags.Bool("silent", false, "suppress messages from output (reporting only errors)")
 	corsFlag := flags.Bool("cors", false, `enable CORS by setting the Access-Control-Allow-Origin header to "*" in responses`)
+	coopFlag := flags.Bool("coop", false, `enable COOP and COEP by setting the Cross-Origin-Opener-Policy header to "same-origin" and the Cross-Origin-Embedder-Policy header to "require-corp" in responses`)
 	tlsFlag := flags.Bool("tls", false, "enable HTTPS serving with TLS")
 	certFlag := flags.String("certfile", "cert.pem", "TLS certificate file to use with -tls")
 	keyFlag := flags.String("keyfile", "key.pem", "TLS key file to use with -tls")
@@ -120,6 +121,9 @@ func Main() int {
 	if *corsFlag {
 		fileHandler = enableCORS(fileHandler)
 	}
+	if *coopFlag {
+		fileHandler = enableCOOP(fileHandler)
+	}
 	mux.Handle("/", fileHandler)
 	srv.Handler = mux
 
@@ -173,6 +177,18 @@ func serveLogger(logger *log.Logger, next http.Handler) http.Handler {
 func enableCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+		next.ServeHTTP(w, r)
+	})
+}
+
+// enableCOOP adds COOP and COEP response headers per:
+//
+// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Opener-Policy
+// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Embedder-Policy
+func enableCOOP(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cross-Origin-Opener-Policy", "same-origin")
+		w.Header().Set("Cross-Origin-Embedder-Policy", "require-corp")
 		next.ServeHTTP(w, r)
 	})
 }
